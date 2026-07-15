@@ -38,6 +38,28 @@
     *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
   }
 
+  /* ---------- animated background loop (placeholder) ---------- */
+  #bg-loop{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    overflow:hidden;
+    background:#050d09;
+  }
+  #bg-loop img,
+  #bg-loop video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:0.32;
+    filter:saturate(1.1) contrast(1.05);
+  }
+  #bg-loop::after{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse at 50% 40%, rgba(5,13,9,0.2), rgba(5,13,9,0.85) 80%);
+  }
+
   /* ---------- texture layer ---------- */
   body::before{
     content:"";
@@ -427,6 +449,23 @@
 </head>
 <body>
 
+<!-- 
+  ANIMATED BACKGROUND PLACEHOLDER
+  Drop a GIF, video (mp4/webm), or looping animation here.
+  - For a GIF: keep the <img> tag below, just point src at your file (e.g. assets/bg-loop.gif)
+  - For a video (recommended — much smaller file size than GIF): swap the <img> for the <video> block that's commented out
+  Opacity is set low (0.32) on purpose so text stays readable — raise it in #bg-loop img / #bg-loop video if you want it more visible.
+-->
+<div id="bg-loop" aria-hidden="true">
+  <img src="assets/bg-loop-placeholder.gif" alt="">
+  <!--
+  <video autoplay loop muted playsinline>
+    <source src="assets/bg-loop.mp4" type="video/mp4">
+    <source src="assets/bg-loop.webm" type="video/webm">
+  </video>
+  -->
+</div>
+
 <div id="warden-roam" aria-hidden="true">
   <div id="warden-portrait">
     <img src="Chapter-4.png" alt="">
@@ -463,6 +502,7 @@
     <a href="#guardians">Guardians</a>
     <a href="#tokenomics">Tokenomics</a>
     <a href="#roadmap">Path</a>
+    <a href="book-of-souls.html">Join the Legion</a>
   </div>
 </nav>
 
@@ -657,7 +697,7 @@
       <button onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('ca-text').innerText)">Copy</button>
     </div>
     <div class="cta-row">
-      <a href="https://www.shutterstock.com/shutterstock/videos/3719570877/thumb/6.jpg?ip=x480" class="btn primary">Join the Order (Telegram)</a>
+      <a href="book-of-souls.html" class="btn primary">Claim Your Page (Join the Legion)</a>
       <a href="https://x.com/ThegoodbearSOL" class="btn">Follow the Legend (X)</a>
     </div>
     <p class="launch-note">🌿 — that is the only warning you'll get.</p>
@@ -711,9 +751,9 @@
         THE GREEN WARDEN
       </div>
       <div class="footer-links">
-        <a href="#">X / Twitter</a>
-        <a href="#">Telegram</a>
+        <a href="https://x.com/ThegoodbearSOL">X / Twitter</a>
         <a href="#lore">The Lore</a>
+        <a href="book-of-souls.html">Join the Legion</a>
       </div>
     </div>
     <p class="footer-fine">One Legion. One Purpose. Green Forever.</p>
