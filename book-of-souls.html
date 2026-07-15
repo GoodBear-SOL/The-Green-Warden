@@ -150,7 +150,7 @@
   const SUPABASE_URL = "https://tmceqqciccnnlxjiobgc.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtY2VxcWNpY2Nubmx4amlvYmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMjQ0MDEsImV4cCI6MjA5OTcwMDQwMX0.D63RvW8nmKtqYDhS49d0zvahBmL7Lg8Pt96w19U90Bo";
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // Rank thresholds — based on Aura. Edit freely.
   const RANKS = [
@@ -220,7 +220,7 @@
   }
 
   async function loadOrCreateProfile(walletAddress){
-    let { data, error } = await supabase
+    let { data, error } = await sb
       .from('profiles')
       .select('*')
       .eq('wallet', walletAddress)
@@ -229,7 +229,7 @@
     if(error){ console.error(error); statusMsg.textContent = "Could not reach the Book of Souls. Try again shortly."; return; }
 
     if(!data){
-      const { data: created, error: insertErr } = await supabase
+      const { data: created, error: insertErr } = await sb
         .from('profiles')
         .insert({ wallet: walletAddress, fragments: 0, aura: 0 })
         .select()
@@ -272,7 +272,7 @@
     const profile = window.__profile;
     if(!profile || !canCheckinNow(profile.last_checkin)) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('profiles')
       .update({
         fragments: profile.fragments + CHECKIN_REWARD,
@@ -291,7 +291,7 @@
     const profile = window.__profile;
     if(!profile || profile.fragments < FRAGMENTS_PER_AURA) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('profiles')
       .update({
         fragments: profile.fragments - FRAGMENTS_PER_AURA,
