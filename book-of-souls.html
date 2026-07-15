@@ -182,15 +182,22 @@
   document.getElementById('checkin-btn').addEventListener('click', dailyCheckin);
   document.getElementById('convert-btn').addEventListener('click', convertFragments);
 
+  function getPhantomProvider(){
+    if(window.phantom?.solana?.isPhantom) return window.phantom.solana;
+    if(window.solana?.isPhantom) return window.solana;
+    return null;
+  }
+
   async function connectWallet(){
-    if(!window.solana || !window.solana.isPhantom){
-      statusMsg.textContent = "Phantom wallet not found. Install it from phantom.app and refresh.";
+    const provider = getPhantomProvider();
+    if(!provider){
+      statusMsg.textContent = "Phantom wallet not found. Install it from phantom.app and refresh the page.";
       return;
     }
     connectBtn.disabled = true;
     connectBtn.textContent = "Connecting…";
     try{
-      const resp = await window.solana.connect();
+      const resp = await provider.connect();
       wallet = resp.publicKey.toString();
 
       // Ask for a signature just to prove wallet ownership for this session.
@@ -199,7 +206,7 @@
       const message = new TextEncoder().encode(
         `Sign to enter the Book of Souls.\nWallet: ${wallet}\nTimestamp: ${Date.now()}`
       );
-      await window.solana.signMessage(message, "utf8");
+      await provider.signMessage(message, "utf8");
 
       await loadOrCreateProfile(wallet);
       connectPanel.style.display = 'none';
