@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Book of Souls — The Green Warden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --void: rgba(5,13,9,0.93);
+    --panel: rgba(10,23,16,0.9);
+    --panel-2: rgba(14,31,21,0.9);
+    --line: rgba(201,162,39,0.18);
+    --emerald: #1f6b42;
+    --emerald-2: #2f9159;
+    --flame: #5eeb8f;
+    --flame-soft: rgba(94,235,143,0.35);
+    --crimson-bright: #d64f3c;
+    --gold: #c9a227;
+    --gold-soft: rgba(201,162,39,0.5);
+    --parchment: #e9e2cd;
+    --ink: #b9c2b6;
+    --ink-dim: #79857c;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{background:#050d09;}
+  body{
+    background:var(--void);
+    color:var(--parchment);
+    font-family:'Crimson Text', serif;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:60px 20px;
+  }
+  h1,h2,h3,.eyebrow{font-family:'Cinzel', serif; letter-spacing:0.04em;}
+  .wrap{max-width:640px; width:100%;}
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem; letter-spacing:0.35em; text-transform:uppercase;
+    color:var(--gold); text-align:center; margin-bottom:18px;
+  }
+  h1{font-size:clamp(1.9rem,5vw,2.7rem); text-align:center; margin-bottom:14px; color:var(--parchment);}
+  .sub{text-align:center; color:var(--ink); font-style:italic; font-size:1.1rem; margin-bottom:48px;}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); padding:40px 36px;
+    text-align:center;
+  }
+
+  /* connect state */
+  #connect-btn{
+    font-family:'JetBrains Mono', monospace; font-size:0.85rem; letter-spacing:0.12em;
+    text-transform:uppercase; padding:18px 36px; background:var(--emerald);
+    border:1px solid var(--emerald); color:var(--parchment); cursor:pointer;
+    transition:background 0.25s;
+  }
+  #connect-btn:hover{background:var(--emerald-2);}
+  #connect-btn:disabled{opacity:0.6; cursor:wait;}
+  .hint{margin-top:18px; font-size:0.85rem; color:var(--ink-dim); font-style:italic;}
+  #status-msg{margin-top:16px; font-size:0.85rem; color:var(--crimson-bright); min-height:1.2em;}
+
+  /* profile state */
+  #profile{display:none;}
+  .wallet-tag{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--ink-dim);
+    margin-bottom:6px;
+  }
+  .rank-title{
+    font-family:'Cinzel', serif; font-size:1.6rem; color:var(--flame);
+    margin-bottom:28px;
+  }
+  .stat-row{
+    display:flex; justify-content:space-between; gap:16px;
+    border-top:1px solid var(--line); padding:18px 0;
+  }
+  .stat-row:last-of-type{border-bottom:1px solid var(--line);}
+  .stat-label{font-family:'JetBrains Mono', monospace; font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold);}
+  .stat-value{font-family:'Cinzel', serif; font-size:1.2rem; color:var(--parchment);}
+
+  .actions{display:flex; flex-direction:column; gap:14px; margin-top:32px;}
+  .btn{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; letter-spacing:0.1em;
+    text-transform:uppercase; padding:15px 20px; border:1px solid var(--gold-soft);
+    color:var(--parchment); background:transparent; cursor:pointer; transition:all 0.25s;
+  }
+  .btn:hover:not(:disabled){border-color:var(--flame); color:var(--flame);}
+  .btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .btn.primary{background:var(--emerald); border-color:var(--emerald);}
+  .btn.primary:hover:not(:disabled){background:var(--emerald-2); color:var(--parchment);}
+
+  .relics{
+    margin-top:36px; padding-top:28px; border-top:1px dashed var(--line);
+    color:var(--ink-dim); font-size:0.9rem; font-style:italic;
+  }
+
+  .action-msg{margin-top:14px; font-size:0.82rem; color:var(--flame); min-height:1.2em;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <span class="eyebrow">The Book of Souls</span>
+  <h1>Every Soul Has a Page.</h1>
+  <p class="sub">Connect your Solana wallet to claim yours.</p>
+
+  <div class="panel" id="connect-panel">
+    <button id="connect-btn">Connect Wallet</button>
+    <p class="hint">Phantom wallet required for now. Nothing is ever asked of your funds — only your signature, to prove the wallet is yours.</p>
+    <p id="status-msg"></p>
+  </div>
+
+  <div class="panel" id="profile">
+    <p class="wallet-tag" id="wallet-tag"></p>
+    <p class="rank-title" id="rank-title"></p>
+
+    <div class="stat-row">
+      <span class="stat-label">Sacred Candle Fragments</span>
+      <span class="stat-value" id="fragments-val">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Aura</span>
+      <span class="stat-value" id="aura-val">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Joined</span>
+      <span class="stat-value" id="joined-val">—</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="checkin-btn">Receive the Daily Blessing (+10 Fragments)</button>
+      <button class="btn" id="convert-btn">Convert 100 Fragments → 1 Aura</button>
+    </div>
+    <p class="action-msg" id="action-msg"></p>
+
+    <div class="relics">
+      🗝️ The Sacred Relics have not yet been unveiled. Aura earned here will matter when they are.
+    </div>
+  </div>
+</div>
+
+<script>
+  // =========================================================================
+  // SETUP — replace these two values with your own free Supabase project.
+  // 1. Create a free project at https://supabase.com
+  // 2. Run the SQL in the setup notes to create the `profiles` table
+  // 3. Project Settings > API > paste your Project URL and anon public key below
+  // =========================================================================
+  const SUPABASE_URL = "https://tmceqqciccnnlxjiobgc.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtY2VxcWNpY2Nubmx4amlvYmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMjQ0MDEsImV4cCI6MjA5OTcwMDQwMX0.D63RvW8nmKtqYDhS49d0zvahBmL7Lg8Pt96w19U90Bo";
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Rank thresholds — based on Aura. Edit freely.
+  const RANKS = [
+    { min: 0,    name: "Wanderer" },
+    { min: 10,   name: "Keeper" },
+    { min: 50,   name: "Guardian" },
+    { min: 150,  name: "Warden" },
+    { min: 500,  name: "Flamebearer of the Legion" },
+  ];
+  function rankFor(aura){
+    let current = RANKS[0].name;
+    for(const r of RANKS){ if(aura >= r.min) current = r.name; }
+    return current;
+  }
+
+  const FRAGMENTS_PER_AURA = 100;
+  const CHECKIN_REWARD = 10;
+  const CHECKIN_COOLDOWN_HOURS = 24;
+
+  let wallet = null;
+
+  const connectBtn = document.getElementById('connect-btn');
+  const statusMsg = document.getElementById('status-msg');
+  const connectPanel = document.getElementById('connect-panel');
+  const profilePanel = document.getElementById('profile');
+  const actionMsg = document.getElementById('action-msg');
+
+  connectBtn.addEventListener('click', connectWallet);
+  document.getElementById('checkin-btn').addEventListener('click', dailyCheckin);
+  document.getElementById('convert-btn').addEventListener('click', convertFragments);
+
+  async function connectWallet(){
+    if(!window.solana || !window.solana.isPhantom){
+      statusMsg.textContent = "Phantom wallet not found. Install it from phantom.app and refresh.";
+      return;
+    }
+    connectBtn.disabled = true;
+    connectBtn.textContent = "Connecting…";
+    try{
+      const resp = await window.solana.connect();
+      wallet = resp.publicKey.toString();
+
+      // Ask for a signature just to prove wallet ownership for this session.
+      // Note: this proves ownership at connect time, but writes below still
+      // rely on the public anon key — see setup notes for hardening this later.
+      const message = new TextEncoder().encode(
+        `Sign to enter the Book of Souls.\nWallet: ${wallet}\nTimestamp: ${Date.now()}`
+      );
+      await window.solana.signMessage(message, "utf8");
+
+      await loadOrCreateProfile(wallet);
+      connectPanel.style.display = 'none';
+      profilePanel.style.display = 'block';
+    }catch(err){
+      console.error(err);
+      statusMsg.textContent = "Connection cancelled or failed. Try again.";
+      connectBtn.disabled = false;
+      connectBtn.textContent = "Connect Wallet";
+    }
+  }
+
+  async function loadOrCreateProfile(walletAddress){
+    let { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('wallet', walletAddress)
+      .maybeSingle();
+
+    if(error){ console.error(error); statusMsg.textContent = "Could not reach the Book of Souls. Try again shortly."; return; }
+
+    if(!data){
+      const { data: created, error: insertErr } = await supabase
+        .from('profiles')
+        .insert({ wallet: walletAddress, fragments: 0, aura: 0 })
+        .select()
+        .single();
+      if(insertErr){ console.error(insertErr); statusMsg.textContent = "Could not create your page. Try again shortly."; return; }
+      data = created;
+    }
+
+    renderProfile(data);
+  }
+
+  function renderProfile(profile){
+    document.getElementById('wallet-tag').textContent =
+      profile.wallet.slice(0,4) + "..." + profile.wallet.slice(-4);
+    document.getElementById('rank-title').textContent = rankFor(profile.aura);
+    document.getElementById('fragments-val').textContent = profile.fragments;
+    document.getElementById('aura-val').textContent = profile.aura;
+    document.getElementById('joined-val').textContent =
+      profile.joined_at ? new Date(profile.joined_at).toLocaleDateString() : "—";
+
+    const canCheckin = canCheckinNow(profile.last_checkin);
+    const checkinBtn = document.getElementById('checkin-btn');
+    checkinBtn.disabled = !canCheckin;
+    checkinBtn.textContent = canCheckin
+      ? "Receive the Daily Blessing (+10 Fragments)"
+      : "The Flame is resting — return later";
+
+    document.getElementById('convert-btn').disabled = profile.fragments < FRAGMENTS_PER_AURA;
+
+    window.__profile = profile; // stash for the action handlers below
+  }
+
+  function canCheckinNow(lastCheckin){
+    if(!lastCheckin) return true;
+    const hoursSince = (Date.now() - new Date(lastCheckin).getTime()) / 36e5;
+    return hoursSince >= CHECKIN_COOLDOWN_HOURS;
+  }
+
+  async function dailyCheckin(){
+    const profile = window.__profile;
+    if(!profile || !canCheckinNow(profile.last_checkin)) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        fragments: profile.fragments + CHECKIN_REWARD,
+        last_checkin: new Date().toISOString()
+      })
+      .eq('wallet', profile.wallet)
+      .select()
+      .single();
+
+    if(error){ actionMsg.textContent = "The Flame did not answer. Try again."; return; }
+    actionMsg.textContent = `+${CHECKIN_REWARD} Sacred Candle Fragments received.`;
+    renderProfile(data);
+  }
+
+  async function convertFragments(){
+    const profile = window.__profile;
+    if(!profile || profile.fragments < FRAGMENTS_PER_AURA) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        fragments: profile.fragments - FRAGMENTS_PER_AURA,
+        aura: profile.aura + 1
+      })
+      .eq('wallet', profile.wallet)
+      .select()
+      .single();
+
+    if(error){ actionMsg.textContent = "The conversion failed. Try again."; return; }
+    actionMsg.textContent = `1 Aura gained. The Flame recognizes your growth.`;
+    renderProfile(data);
+  }
+</script>
+
+</body>
+</html>
