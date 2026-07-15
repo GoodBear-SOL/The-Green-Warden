@@ -31,11 +31,10 @@
     color:var(--parchment);
     font-family:'Crimson Text', serif;
     min-height:100vh;
-    display:flex; align-items:center; justify-content:center;
-    padding:60px 20px;
+    padding:60px 20px 100px;
   }
   h1,h2,h3,.eyebrow{font-family:'Cinzel', serif; letter-spacing:0.04em;}
-  .wrap{max-width:640px; width:100%;}
+  .wrap{max-width:640px; width:100%; margin:0 auto;}
   .eyebrow{
     font-family:'JetBrains Mono', monospace;
     font-size:0.72rem; letter-spacing:0.35em; text-transform:uppercase;
@@ -45,7 +44,7 @@
   .sub{text-align:center; color:var(--ink); font-style:italic; font-size:1.1rem; margin-bottom:48px;}
 
   .panel{
-    background:var(--panel); border:1px solid var(--line); padding:40px 36px;
+    background:var(--panel); border:1px solid var(--line); padding:36px 32px;
     text-align:center;
   }
 
@@ -61,8 +60,14 @@
   .hint{margin-top:18px; font-size:0.85rem; color:var(--ink-dim); font-style:italic;}
   #status-msg{margin-top:16px; font-size:0.85rem; color:var(--crimson-bright); min-height:1.2em;}
 
-  /* profile state */
-  #profile{display:none;}
+  /* dashboard sections */
+  #dashboard{display:none;}
+  .section-title{
+    font-family:'JetBrains Mono', monospace; font-size:0.7rem; letter-spacing:0.25em;
+    text-transform:uppercase; color:var(--gold); margin:44px 0 14px; text-align:left;
+  }
+  .section-title:first-of-type{margin-top:0;}
+
   .wallet-tag{
     font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--ink-dim);
     margin-bottom:6px;
@@ -71,12 +76,18 @@
     font-family:'Cinzel', serif; font-size:1.6rem; color:var(--flame);
     margin-bottom:28px;
   }
+
   .stat-row{
-    display:flex; justify-content:space-between; gap:16px;
+    display:flex; justify-content:space-between; align-items:center; gap:16px;
     border-top:1px solid var(--line); padding:18px 0;
   }
   .stat-row:last-of-type{border-bottom:1px solid var(--line);}
-  .stat-label{font-family:'JetBrains Mono', monospace; font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold);}
+  .stat-label{
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--gold);
+    display:flex; align-items:center; gap:9px;
+  }
+  .stat-label svg{width:15px; height:15px; flex-shrink:0;}
   .stat-value{font-family:'Cinzel', serif; font-size:1.2rem; color:var(--parchment);}
 
   .actions{display:flex; flex-direction:column; gap:14px; margin-top:32px;}
@@ -91,11 +102,44 @@
   .btn.primary:hover:not(:disabled){background:var(--emerald-2); color:var(--parchment);}
 
   .relics{
-    margin-top:36px; padding-top:28px; border-top:1px dashed var(--line);
-    color:var(--ink-dim); font-size:0.9rem; font-style:italic;
+    margin-top:32px; padding-top:26px; border-top:1px dashed var(--line);
+    color:var(--ink-dim); font-size:0.9rem; font-style:italic; text-align:center;
   }
 
-  .action-msg{margin-top:14px; font-size:0.82rem; color:var(--flame); min-height:1.2em;}
+  .action-msg{margin-top:14px; font-size:0.82rem; color:var(--flame); min-height:1.2em; text-align:center;}
+
+  /* holdings panel */
+  .holdings-row{display:flex; justify-content:space-between; align-items:center; padding:6px 0 22px;}
+  .holdings-amt{font-family:'Cinzel', serif; font-size:1.5rem; color:var(--ink-dim);}
+  .holdings-note{font-size:0.85rem; color:var(--ink-dim); font-style:italic; text-align:left; line-height:1.5; margin-bottom:20px;}
+  .holdings-actions{display:flex; gap:12px;}
+  .holdings-actions .btn{flex:1;}
+
+  /* quests panel */
+  .quest-block{text-align:left;}
+  .quest-block + .quest-block{margin-top:30px; padding-top:26px; border-top:1px solid var(--line);}
+  .quest-name{font-family:'Cinzel', serif; font-size:1.1rem; color:var(--parchment); margin-bottom:6px;}
+  .quest-desc{font-size:0.92rem; color:var(--ink); margin-bottom:16px; line-height:1.5;}
+
+  .streak-row{display:flex; gap:6px; margin-bottom:18px;}
+  .streak-pip{
+    flex:1; text-align:center; padding:8px 2px; border:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace; font-size:0.65rem; color:var(--ink-dim);
+  }
+  .streak-pip.done{background:var(--emerald); border-color:var(--emerald); color:var(--parchment);}
+  .streak-pip.next{border-color:var(--flame); color:var(--flame);}
+
+  .x-input-row{display:flex; gap:10px;}
+  .x-input-row input{
+    flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--parchment);
+    font-family:'JetBrains Mono', monospace; font-size:0.85rem; padding:12px 14px;
+  }
+  .x-input-row input:focus{outline:none; border-color:var(--flame);}
+  .x-input-row .btn{white-space:nowrap;}
+
+  .share-note{
+    font-size:0.85rem; color:var(--ink-dim); font-style:italic; margin-top:10px;
+  }
 </style>
 </head>
 <body>
@@ -111,48 +155,105 @@
     <p id="status-msg"></p>
   </div>
 
-  <div class="panel" id="profile">
-    <p class="wallet-tag" id="wallet-tag"></p>
-    <p class="rank-title" id="rank-title"></p>
+  <div id="dashboard">
 
-    <div class="stat-row">
-      <span class="stat-label">Sacred Candle Fragments</span>
-      <span class="stat-value" id="fragments-val">0</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Aura</span>
-      <span class="stat-value" id="aura-val">0</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Joined</span>
-      <span class="stat-value" id="joined-val">—</span>
+    <!-- SECTION 1: PROFILE -->
+    <div class="panel">
+      <p class="wallet-tag" id="wallet-tag"></p>
+      <p class="rank-title" id="rank-title"></p>
+
+      <div class="stat-row">
+        <span class="stat-label">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C7 8 5 12 5 15a7 7 0 0014 0c0-3-2-7-7-13z" fill="#5eeb8f"/></svg>
+          Sacred Candle Fragments
+        </span>
+        <span class="stat-value" id="fragments-val">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="#c9a227"/><circle cx="12" cy="12" r="9" stroke="#c9a227" stroke-width="1.2" opacity="0.6"/></svg>
+          Aura
+        </span>
+        <span class="stat-value" id="aura-val">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Joined</span>
+        <span class="stat-value" id="joined-val">—</span>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="convert-btn">Convert 100 Fragments → 1 Aura</button>
+      </div>
+      <p class="action-msg" id="action-msg"></p>
+
+      <div class="relics">
+        🗝️ The Sacred Relics have not yet been unveiled. Aura earned here will matter when they are.
+      </div>
     </div>
 
-    <div class="actions">
-      <button class="btn primary" id="checkin-btn">Receive the Daily Blessing (+10 Fragments)</button>
-      <button class="btn" id="convert-btn">Convert 100 Fragments → 1 Aura</button>
+    <!-- SECTION 2: HOLDINGS (placeholder until token launches) -->
+    <div class="section-title">Your Holdings</div>
+    <div class="panel" style="text-align:left;">
+      <div class="holdings-row">
+        <span class="stat-label">$TGW Balance</span>
+        <span class="holdings-amt">—</span>
+      </div>
+      <p class="holdings-note">
+        The Sacred Candle has not yet been lit — there's no token to hold yet. Once $TGW launches,
+        this panel will automatically show your live balance and P&amp;L the moment you connect.
+      </p>
+      <div class="holdings-actions">
+        <button class="btn" disabled>Refresh Balance</button>
+        <button class="btn primary" disabled>Buy $TGW</button>
+      </div>
     </div>
-    <p class="action-msg" id="action-msg"></p>
 
-    <div class="relics">
-      🗝️ The Sacred Relics have not yet been unveiled. Aura earned here will matter when they are.
+    <!-- SECTION 3: QUESTS -->
+    <div class="section-title">Today's Quests</div>
+    <div class="panel">
+
+      <div class="quest-block">
+        <div class="quest-name">Daily Blessing</div>
+        <div class="quest-desc" id="streak-desc">Return each day to grow your streak. Miss a day and it resets.</div>
+        <div class="streak-row" id="streak-row"></div>
+        <button class="btn primary" id="checkin-btn" style="width:100%;">Claim Today's Blessing</button>
+      </div>
+
+      <div class="quest-block">
+        <div class="quest-name">Bind Your X Handle</div>
+        <div class="quest-desc">Link your X account so the Legion knows your name.</div>
+        <div class="x-input-row">
+          <input type="text" id="x-handle-input" placeholder="@yourhandle">
+          <button class="btn" id="x-save-btn">Save</button>
+        </div>
+      </div>
+
+      <div class="quest-block">
+        <div class="quest-name">Spread the Legend (+50 Fragments)</div>
+        <div class="quest-desc">Share The Green Warden on X, then paste the link to your post below. The Warden reviews every submission personally.</div>
+        <div class="x-input-row">
+          <input type="text" id="share-link-input" placeholder="https://x.com/yourpost...">
+          <button class="btn" id="share-submit-btn">Submit</button>
+        </div>
+        <p class="share-note" id="share-note"></p>
+      </div>
+
+      <p class="action-msg" id="quest-msg"></p>
     </div>
+
   </div>
 </div>
 
 <script>
   // =========================================================================
-  // SETUP — replace these two values with your own free Supabase project.
-  // 1. Create a free project at https://supabase.com
-  // 2. Run the SQL in the setup notes to create the `profiles` table
-  // 3. Project Settings > API > paste your Project URL and anon public key below
+  // SETUP — your Supabase project keys.
   // =========================================================================
   const SUPABASE_URL = "https://tmceqqciccnnlxjiobgc.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtY2VxcWNpY2Nubmx4amlvYmdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxMjQ0MDEsImV4cCI6MjA5OTcwMDQwMX0.D63RvW8nmKtqYDhS49d0zvahBmL7Lg8Pt96w19U90Bo";
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Rank thresholds — based on Aura. Edit freely.
+  // Rank thresholds — based on Aura.
   const RANKS = [
     { min: 0,    name: "Wanderer" },
     { min: 10,   name: "Keeper" },
@@ -167,20 +268,24 @@
   }
 
   const FRAGMENTS_PER_AURA = 100;
-  const CHECKIN_REWARD = 10;
-  const CHECKIN_COOLDOWN_HOURS = 24;
+
+  // Daily streak rewards — day 1 through day 7, then the cycle repeats.
+  const DAILY_REWARDS = { 1:5, 2:10, 3:15, 4:20, 5:25, 6:30, 7:50 };
 
   let wallet = null;
 
   const connectBtn = document.getElementById('connect-btn');
   const statusMsg = document.getElementById('status-msg');
   const connectPanel = document.getElementById('connect-panel');
-  const profilePanel = document.getElementById('profile');
+  const dashboard = document.getElementById('dashboard');
   const actionMsg = document.getElementById('action-msg');
+  const questMsg = document.getElementById('quest-msg');
 
   connectBtn.addEventListener('click', connectWallet);
-  document.getElementById('checkin-btn').addEventListener('click', dailyCheckin);
   document.getElementById('convert-btn').addEventListener('click', convertFragments);
+  document.getElementById('checkin-btn').addEventListener('click', dailyCheckin);
+  document.getElementById('x-save-btn').addEventListener('click', saveXHandle);
+  document.getElementById('share-submit-btn').addEventListener('click', submitShare);
 
   function getPhantomProvider(){
     if(window.phantom?.solana?.isPhantom) return window.phantom.solana;
@@ -200,9 +305,6 @@
       const resp = await provider.connect();
       wallet = resp.publicKey.toString();
 
-      // Ask for a signature just to prove wallet ownership for this session.
-      // Note: this proves ownership at connect time, but writes below still
-      // rely on the public anon key — see setup notes for hardening this later.
       const message = new TextEncoder().encode(
         `Sign to enter the Book of Souls.\nWallet: ${wallet}\nTimestamp: ${Date.now()}`
       );
@@ -210,7 +312,7 @@
 
       await loadOrCreateProfile(wallet);
       connectPanel.style.display = 'none';
-      profilePanel.style.display = 'block';
+      dashboard.style.display = 'block';
     }catch(err){
       console.error(err);
       statusMsg.textContent = "Connection cancelled or failed. Try again.";
@@ -242,6 +344,8 @@
   }
 
   function renderProfile(profile){
+    window.__profile = profile;
+
     document.getElementById('wallet-tag').textContent =
       profile.wallet.slice(0,4) + "..." + profile.wallet.slice(-4);
     document.getElementById('rank-title').textContent = rankFor(profile.aura);
@@ -250,43 +354,14 @@
     document.getElementById('joined-val').textContent =
       profile.joined_at ? new Date(profile.joined_at).toLocaleDateString() : "—";
 
-    const canCheckin = canCheckinNow(profile.last_checkin);
-    const checkinBtn = document.getElementById('checkin-btn');
-    checkinBtn.disabled = !canCheckin;
-    checkinBtn.textContent = canCheckin
-      ? "Receive the Daily Blessing (+10 Fragments)"
-      : "The Flame is resting — return later";
-
     document.getElementById('convert-btn').disabled = profile.fragments < FRAGMENTS_PER_AURA;
 
-    window.__profile = profile; // stash for the action handlers below
+    document.getElementById('x-handle-input').value = profile.x_handle || '';
+
+    renderStreak(profile);
   }
 
-  function canCheckinNow(lastCheckin){
-    if(!lastCheckin) return true;
-    const hoursSince = (Date.now() - new Date(lastCheckin).getTime()) / 36e5;
-    return hoursSince >= CHECKIN_COOLDOWN_HOURS;
-  }
-
-  async function dailyCheckin(){
-    const profile = window.__profile;
-    if(!profile || !canCheckinNow(profile.last_checkin)) return;
-
-    const { data, error } = await sb
-      .from('profiles')
-      .update({
-        fragments: profile.fragments + CHECKIN_REWARD,
-        last_checkin: new Date().toISOString()
-      })
-      .eq('wallet', profile.wallet)
-      .select()
-      .single();
-
-    if(error){ actionMsg.textContent = "The Flame did not answer. Try again."; return; }
-    actionMsg.textContent = `+${CHECKIN_REWARD} Sacred Candle Fragments received.`;
-    renderProfile(data);
-  }
-
+  // ---------- Aura conversion ----------
   async function convertFragments(){
     const profile = window.__profile;
     if(!profile || profile.fragments < FRAGMENTS_PER_AURA) return;
@@ -304,6 +379,123 @@
     if(error){ actionMsg.textContent = "The conversion failed. Try again."; return; }
     actionMsg.textContent = `1 Aura gained. The Flame recognizes your growth.`;
     renderProfile(data);
+  }
+
+  // ---------- Daily streak check-in ----------
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function daysBetween(a, b){
+    const da = new Date(a + 'T00:00:00');
+    const db = new Date(b + 'T00:00:00');
+    return Math.round((db - da) / 86400000);
+  }
+
+  function renderStreak(profile){
+    const streakRow = document.getElementById('streak-row');
+    const checkinBtn = document.getElementById('checkin-btn');
+    const streakDesc = document.getElementById('streak-desc');
+
+    const lastClaim = profile.last_claim_date;
+    const currentStreak = profile.streak_day || 0;
+    const alreadyClaimedToday = lastClaim === todayStr();
+
+    let nextDay;
+    if(alreadyClaimedToday){
+      nextDay = currentStreak; // showing the day they just claimed
+    } else if(!lastClaim || daysBetween(lastClaim, todayStr()) > 1){
+      nextDay = 1; // never claimed, or missed a day — streak resets
+    } else {
+      nextDay = (currentStreak % 7) + 1; // continuing the streak
+    }
+
+    streakRow.innerHTML = '';
+    for(let day = 1; day <= 7; day++){
+      const pip = document.createElement('div');
+      pip.className = 'streak-pip';
+      if(alreadyClaimedToday && day <= currentStreak) pip.classList.add('done');
+      if(!alreadyClaimedToday && day === nextDay) pip.classList.add('next');
+      pip.textContent = 'D' + day;
+      streakRow.appendChild(pip);
+    }
+
+    if(alreadyClaimedToday){
+      checkinBtn.disabled = true;
+      checkinBtn.textContent = "Already claimed today — return tomorrow";
+      streakDesc.textContent = `Streak: Day ${currentStreak}. Come back tomorrow for Day ${(currentStreak % 7) + 1} (+${DAILY_REWARDS[(currentStreak % 7) + 1]} Fragments).`;
+    } else {
+      checkinBtn.disabled = false;
+      checkinBtn.textContent = `Claim Day ${nextDay} (+${DAILY_REWARDS[nextDay]} Fragments)`;
+      streakDesc.textContent = "Return each day to grow your streak. Miss a day and it resets to Day 1.";
+    }
+  }
+
+  async function dailyCheckin(){
+    const profile = window.__profile;
+    if(!profile) return;
+
+    const lastClaim = profile.last_claim_date;
+    if(lastClaim === todayStr()) return; // already claimed today, guard
+
+    let nextDay;
+    if(!lastClaim || daysBetween(lastClaim, todayStr()) > 1){
+      nextDay = 1;
+    } else {
+      nextDay = ((profile.streak_day || 0) % 7) + 1;
+    }
+    const reward = DAILY_REWARDS[nextDay];
+
+    const { data, error } = await sb
+      .from('profiles')
+      .update({
+        fragments: profile.fragments + reward,
+        streak_day: nextDay,
+        last_claim_date: todayStr()
+      })
+      .eq('wallet', profile.wallet)
+      .select()
+      .single();
+
+    if(error){ questMsg.textContent = "The Flame did not answer. Try again."; return; }
+    questMsg.textContent = `Day ${nextDay} claimed — +${reward} Sacred Candle Fragments.`;
+    renderProfile(data);
+  }
+
+  // ---------- X handle ----------
+  async function saveXHandle(){
+    const profile = window.__profile;
+    if(!profile) return;
+    let handle = document.getElementById('x-handle-input').value.trim();
+    if(handle && !handle.startsWith('@')) handle = '@' + handle;
+
+    const { data, error } = await sb
+      .from('profiles')
+      .update({ x_handle: handle })
+      .eq('wallet', profile.wallet)
+      .select()
+      .single();
+
+    if(error){ questMsg.textContent = "Could not save your handle. Try again."; return; }
+    questMsg.textContent = "X handle saved.";
+    renderProfile(data);
+  }
+
+  // ---------- Share for review ----------
+  async function submitShare(){
+    const profile = window.__profile;
+    if(!profile) return;
+    const link = document.getElementById('share-link-input').value.trim();
+    const noteEl = document.getElementById('share-note');
+    if(!link){ noteEl.textContent = "Paste your post link first."; return; }
+
+    const { error } = await sb
+      .from('submissions')
+      .insert({ wallet: profile.wallet, link: link });
+
+    if(error){ noteEl.textContent = "Submission failed. Try again."; return; }
+    document.getElementById('share-link-input').value = '';
+    noteEl.textContent = "Submitted! The Green Warden will review it and bless your Fragments personally.";
   }
 </script>
 
